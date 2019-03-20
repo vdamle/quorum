@@ -63,6 +63,14 @@ func (b *Bloom) Add(d *big.Int) {
 	b.SetBytes(bin.Bytes())
 }
 
+// OrBloom executes an Or operation on the bloom
+func (b *Bloom) OrBloom(bl []byte) {
+	bin := new(big.Int).SetBytes(b[:])
+	input := new(big.Int).SetBytes(bl[:])
+	bin.Or(bin, input)
+	b.SetBytes(bin.Bytes())
+}
+
 // Big converts b to a big integer.
 func (b Bloom) Big() *big.Int {
 	return new(big.Int).SetBytes(b[:])
@@ -113,7 +121,7 @@ func LogsBloom(logs []*Log) *big.Int {
 }
 
 func bloom9(b []byte) *big.Int {
-	b = crypto.Keccak256(b[:])
+	b = crypto.Keccak256(b)
 
 	r := new(big.Int)
 
@@ -130,7 +138,7 @@ var Bloom9 = bloom9
 
 func BloomLookup(bin Bloom, topic bytesBacked) bool {
 	bloom := bin.Big()
-	cmp := bloom9(topic.Bytes()[:])
+	cmp := bloom9(topic.Bytes())
 
 	return bloom.And(bloom, cmp).Cmp(cmp) == 0
 }
